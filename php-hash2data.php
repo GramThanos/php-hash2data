@@ -1,6 +1,6 @@
 <?php
 /**
- * php-hash2data v1.0.0
+ * php-hash2data v1.0.1
  * 
  * Single PHP library file for binding hashes to data
  * Easily save and load data on the session using hashed as ids.
@@ -250,5 +250,23 @@ class Hash2Data_Hash {
 	 */
 	public function getData () {
 		return $this->data;
+	}
+
+	/**
+	 * Update saved data
+	 * @param  mixed  $data       The data to save
+	 * @param  integer $time2Live Number of seconds before expiration
+	 */
+	public function update($data, $time2Live=-1) {
+		// Set expiration time
+		if ($time2Live > 0) {
+			$this->expire = time() + $time2Live;
+		}
+		else if ($time2Live == 0) {
+			$this->expire = $time2Live;
+		}
+
+		// Save data
+		$this->data = $data;
 	}
 }
