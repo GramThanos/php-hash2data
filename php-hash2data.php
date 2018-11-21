@@ -1,6 +1,6 @@
 <?php
 /**
- * php-hash2data v1.0.1
+ * php-hash2data v1.0.2
  * 
  * Single PHP library file for binding hashes to data
  * Easily save and load data on the session using hashed as ids.
@@ -49,13 +49,16 @@ class Hash2Data {
 	private $name;
 	private $hashes2data;
 	private $hashTime2Live;
+	private $hashSize;
 	private $inputName;
 
-	function __construct ($name='awesome', $hashTime2Live=0) {
+	function __construct ($sessionName='hash2data-lib', $hashTime2Live=0, $hashSize=64) {
 		// Session mods
-		$this->name = 'h2d-' . $name;
+		$this->name = $sessionName;
 		// Default time before expire for hashes
 		$this->hashTime2Live = $hashTime2Live;
+		// Default size for hashes
+		$this->hashSize = $hashSize;
 		// Load hash2data list
 		$this->_load();
 	}
@@ -71,7 +74,7 @@ class Hash2Data {
 		// If no time2live (or invalid) use default
 		if ($time2Live < 0) $time2Live = $this->hashTime2Live;
 		// Generate new hash2data
-		$hash2data = new Hash2Data_Hash($data, $context, $time2Live);
+		$hash2data = new Hash2Data_Hash($data, $context, $time2Live, $this->hashSize);
 		// Save it
 		array_push($this->hashes2data, $hash2data);
 		$this->_save();
@@ -105,11 +108,22 @@ class Hash2Data {
 	}
 
 	/**
-	 * Get your data from a hash
-	 * @param  mixed  $data   		the data to save
+	 * Check if hash exists
+	 * @param  string  $hash   		the hash
 	 * @param  string  $context   	Name of the group
-	 * @param  integer $time2Live 	Seconds before expiration
-	 * @return Hash2Data_Hash
+	 * @return boolean
+	 */
+	public function exists ($hash, $context = '') {
+		if ($this->_find($hash, $context) < 0) return false;
+		return true;
+	}
+
+	/**
+	 * Get your data from a hash
+	 * @param  mixed  $hash   		The hash that references the data
+	 * @param  string  $context   	Name of the group
+	 * @param  integer $remove 		Delete after load
+	 * @return mixed
 	 */
 	public function load ($hash, $context = '', $remove=false) {
 		// Find data
@@ -123,6 +137,16 @@ class Hash2Data {
 
 		// Not found
 		return $data;
+	}
+
+	/**
+	 * Delete data and hash binding
+	 * @param  string  $hash   		the hash
+	 * @param  string  $context   	Name of the group
+	 * @return boolean
+	 */
+	public function delete ($hash, $context = '') {
+		return $this->load($hash, $context, true);
 	}
 
 	/**
@@ -142,7 +166,6 @@ class Hash2Data {
 		// Not found
 		return -1;
 	}
-
 
 	/**
 	 * Load hash list
