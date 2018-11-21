@@ -81,7 +81,7 @@ Delete a hash and data
 
 The hashes and the data are saved on the `$_SESSION` under the a single variable using `serialize` and `unserialize`. Thus, if the session expires or get destroyed, the hashes and the data would too.
 There is no timer for the expiration of a hash, instead, the hash will be discarded during the initialization process of the Hash2Data object or during a load.
-
+This library uses the [openssl_random_pseudo_bytes](http://php.net/manual/en/function.openssl-random-pseudo-bytes.php) function to generate random hashes.
 
 ___
 
